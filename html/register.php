@@ -2,7 +2,10 @@
 // This is the registration page for the site.
 require('includes/config.inc.php');
 $page_title = 'Register';
+$current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current page
+
 include('includes/header.html');
+include('includes/navigation_bar.html');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 
@@ -87,23 +90,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 	mysqli_close($dbc);
 } // End of the main Submit conditional.
 ?>
-
-<h1>Register</h1>
+<div class="container">
+	<h1>Register</h1>
+</div>
 <form action="register.php" method="post">
-	<fieldset>
+	<div class="container">
+		<div class="form-group">
+			<label for="first_name">First Name:</label>
+			<input type="text" class="form-control" name="first_name" size="20" maxlength="20" value="<?php if (isset($trimmed['first_name'])) echo $trimmed['first_name']; ?>">
+		</div>
+		<div class="form-group">
+			<label for="last_name">Last Name:</label>
+			<input type="text" class="form-control" name="last_name" size="20" maxlength="40" value="<?php if (isset($trimmed['last_name'])) echo $trimmed['last_name']; ?>">
+		</div>
+		<div class="form-group">
+			<label for="email"> Email Address:</label>
+			<input type="email" class="form-control" name="email" size="30" maxlength="60" value="<?php if (isset($trimmed['email'])) echo $trimmed['email']; ?>">
+		</div>
+		<div class="form-group">
+			<label for="password1"> Password:</label>
+			<input type="password" class="form-control" name="password1" size="20" value="<?php if (isset($trimmed['password1'])) echo $trimmed['password1']; ?>">
+			<small>At least 10 characters long.</small>
+		</div>
+		<div class="form-group">
+			<label for="password2">Confirm Password:</label>
+			<input type="password" class="form-control" name="password2" size="20" value="<?php if (isset($trimmed['password2'])) echo $trimmed['password2']; ?>">
+		</div>
+		<div class="form-group row">
+			<div class="col-sm-6">
+				<button type="submit" class="btn btn-primary btn-block">Register</button>
+			</div>
+		</div>
+	</div>
 
-		<p><strong>First Name:</strong> <input type="text" name="first_name" size="20" maxlength="20" value="<?php if (isset($trimmed['first_name'])) echo $trimmed['first_name']; ?>"></p>
 
-		<p><strong>Last Name:</strong> <input type="text" name="last_name" size="20" maxlength="40" value="<?php if (isset($trimmed['last_name'])) echo $trimmed['last_name']; ?>"></p>
-
-		<p><strong>Email Address:</strong> <input type="email" name="email" size="30" maxlength="60" value="<?php if (isset($trimmed['email'])) echo $trimmed['email']; ?>"> </p>
-
-		<p><strong>Password:</strong> <input type="password" name="password1" size="20" value="<?php if (isset($trimmed['password1'])) echo $trimmed['password1']; ?>"> <small>At least 10 characters long.</small></p>
-
-		<p><strong>Confirm Password:</strong> <input type="password" name="password2" size="20" value="<?php if (isset($trimmed['password2'])) echo $trimmed['password2']; ?>"></p>
-	</fieldset>
-
-	<div align="center"><input type="submit" name="submit" value="Register"></div>
 
 </form>
 

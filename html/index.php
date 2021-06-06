@@ -6,8 +6,10 @@ require('includes/config.inc.php');
 
 // Set the page title and include the HTML header:
 $page_title = 'Welcome to this Site!';
+$current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current page
 include('includes/header.html');
 
+include('includes/navigation_bar.html');
 // Welcome the user (by name if they are logged in):
 echo '<h1>Welcome';
 if (isset($_SESSION['first_name'])) {
@@ -15,13 +17,5 @@ if (isset($_SESSION['first_name'])) {
 }
 echo '!</h1>';
 ?>
-<p>Spam spam spam spam spam spam
-spam spam spam spam spam spam
-spam spam spam spam spam spam
-spam spam spam spam spam spam.</p>
-<p>Spam spam spam spam spam spam
-spam spam spam spam spam spam
-spam spam spam spam spam spam
-spam spam spam spam spam spam.</p>
 
 <?php include('includes/footer.html'); ?>

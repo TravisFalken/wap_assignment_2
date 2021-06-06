@@ -3,6 +3,7 @@
 require('includes/config.inc.php');
 $page_title = 'Forgot Your Password';
 include('includes/header.html');
+include('includes/navigation_bar.html');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	require(MYSQL);
@@ -14,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	if (!empty($_POST['email'])) {
 
 		// Check for the existence of that email address...
-		$q = 'SELECT user_id FROM users WHERE email="'.  mysqli_real_escape_string($dbc, $_POST['email']) . '"';
+		$q = 'SELECT user_id FROM users WHERE email="' .  mysqli_real_escape_string($dbc, $_POST['email']) . '"';
 		$r = mysqli_query($dbc, $q) or trigger_error("Query: $q\n<br>MySQL Error: " . mysqli_error($dbc));
 
 		if (mysqli_num_rows($r) == 1) { // Retrieve the user ID:
@@ -22,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		} else { // No database match made.
 			echo '<p class="error">The submitted email address does not match those on file!</p>';
 		}
-
 	} else { // No email!
 		echo '<p class="error">You forgot to enter your email address!</p>';
 	} // End of empty($_POST['email']) IF.
@@ -52,13 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		} else { // If it did not run OK.
 			echo '<p class="error">Your password could not be changed due to a system error. We apologize for any inconvenience.</p>';
 		}
-
 	} else { // Failed the validation test.
 		echo '<p class="error">Please try again.</p>';
 	}
 
 	mysqli_close($dbc);
-
 } // End of the main Submit conditional.
 ?>
 
@@ -66,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <p>Enter your email address below and your password will be reset.</p>
 <form action="forgot_password.php" method="post">
 	<fieldset>
-	<p><strong>Email Address:</strong> <input type="email" name="email" size="20" maxlength="60" value="<?php if (isset($_POST['email'])) echo $_POST['email']; ?>"></p>
+		<p><strong>Email Address:</strong> <input type="email" name="email" size="20" maxlength="60" value="<?php if (isset($_POST['email'])) echo $_POST['email']; ?>"></p>
 	</fieldset>
 	<div align="center"><input type="submit" name="submit" value="Reset My Password"></div>
 </form>

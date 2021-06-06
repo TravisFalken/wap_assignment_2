@@ -2,7 +2,9 @@
 // This is the login page for the site.
 require('includes/config.inc.php');
 $page_title = 'Login';
+$current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current page
 include('includes/header.html');
+include('includes/navigation_bar.html');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	require(MYSQL);
@@ -54,28 +56,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 				echo '<p class="error">Either the email address and password entered do not match those on file or you have not yet activated your account.</p>';
 			}
-
 		} else { // No match was made.
 			echo '<p class="error">Either the email address and password entered do not match those on file or you have not yet activated your account.</p>';
 		}
-
 	} else { // If everything wasn't OK.
 		echo '<p class="error">Please try again.</p>';
 	}
 
 	mysqli_close($dbc);
-
 } // End of SUBMIT conditional.
 ?>
-
-<h1>Login</h1>
+<div class="container">
+	<h1>Login</h1>
+</div>
 <p>Your browser must allow cookies in order to log in.</p>
 <form action="login.php" method="post">
-	<fieldset>
-	<p><strong>Email Address:</strong> <input type="email" name="email" size="20" maxlength="60"></p>
-	<p><strong>Password:</strong> <input type="password" name="pass" size="20"></p>
-	<div align="center"><input type="submit" name="submit" value="Login"></div>
-	</fieldset>
+	<div class="container">
+		<div class="form-group">
+			<label for="email">Email Address:</label>
+			<input type="email" class="form-control" name="email" size="20" maxlength="60">
+		</div>
+		<div class="form-group">
+			<label for="password">Password:</label>
+			<input type="password" class="form-control" name="pass" size="20">
+		</div>
+		<div class="form-group row">
+			<div class="col-sm-6">
+				<button type="submit" class="btn btn-primary btn-block">Login</button>
+			</div>
+			<div class="col-sm-6">
+				<button class="btn btn-primary btn-block">Forgot Password</button>
+			</div>
+		</div>
+	</div>
 </form>
 
 <?php include('includes/footer.html'); ?>

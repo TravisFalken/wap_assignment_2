@@ -3,7 +3,7 @@
 require('includes/config.inc.php');
 $page_title = 'Logout';
 include('includes/header.html');
-
+include('includes/navigation_bar.html');
 // If no first_name session variable exists, redirect the user:
 if (!isset($_SESSION['first_name'])) {
 
@@ -24,4 +24,3 @@ if (!isset($_SESSION['first_name'])) {
 echo '<h3>You are now logged out.</h3>';
 
 include('includes/footer.html');
-?>

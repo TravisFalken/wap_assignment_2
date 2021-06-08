@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 			$activationCode = md5(uniqid(rand(), true));
 
 			// Add the user to the database:
-			$q = "INSERT INTO users (email, pass, first_name, last_name, active, registration_date) VALUES ('$email', '$pass', '$firstName', '$ln', '$activationCode', NOW() )";
+			$q = "INSERT INTO users (email, pass, first_name, last_name, active, registration_date) VALUES ('$email', '$pass', '$firstName', '$lastName', '$activationCode', NOW() )";
 			$res = mysqli_query($dbc, $q) or trigger_error("Query: $q\n<br>MySQL Error: " . mysqli_error($dbc));
 
 			if (mysqli_affected_rows($dbc) == 1) { //Make sure user has been added

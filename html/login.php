@@ -79,13 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		<div class="form-group">
 			<label for="password">Password:</label>
 			<input type="password" class="form-control" name="pass" size="20">
+			<small><a href="<?php echo BASE_URL . 'forgot_password.php' ?>">Forgot Password</a></small>
 		</div>
 		<div class="form-group row">
 			<div class="col-sm-6">
 				<button type="submit" class="btn btn-primary btn-block">Login</button>
-			</div>
-			<div class="col-sm-6">
-				<button class="btn btn-primary btn-block">Forgot Password</button>
 			</div>
 		</div>
 	</div>

@@ -2,7 +2,7 @@
 // This page is for editing a user record.
 // This page is accessed through view_users.php.
 
-$page_title = 'Edit a User';
+$page_title = 'Edit User';
 include('../includes/header.html');
 require('../includes/config.inc.php');
 include('../includes/navigation_bar.html');
@@ -109,12 +109,20 @@ if (mysqli_num_rows($r) == 1) { // Valid user ID, show the form.
             </div>
             <div class="form-group row">
                 <div class="col-6">
-                <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                    <button class="btn btn-success btn-block btn-lg" type="submit"><i class="far fa-save"></i>  Save</button>
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-primary btn-block btn-lg" onclick="cancelEdit()" type="button"><i class="fas fa-times"></i>  Cancel</button>
                 </div>
             </div>
                 <input type="hidden" name="id" value="' . $id . '">
         </div>
     </form>
+    <script>
+        function cancelEdit() {
+            window.location = "' . BASE_URL . 'index.php";
+        }
+    </script>
     ';
 } else { // Not a valid user ID.
     echo '<p class="error">This page has been accessed in error.</p>';

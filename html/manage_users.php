@@ -24,7 +24,7 @@ if (!isset($_SESSION['user_id'])) {
 require(MYSQL);
 
 // Make the query:
-$q = "SELECT CONCAT(last_name, ', ', first_name) AS name, DATE_FORMAT(registration_date, '%M %d, %Y') AS dr, user_id FROM users WHERE user_id <> " . $_SESSION['user_id'] . " ORDER BY registration_date ASC";
+$q = "SELECT CONCAT(last_name, ', ', first_name) AS name, DATE_FORMAT(registration_date, '%d %M %Y') AS dr, user_id FROM users WHERE user_id <> " . $_SESSION['user_id'] . " ORDER BY registration_date ASC";
 $r = mysqli_query($dbc, $q); // Run the query.
 
 // Count the number of returned rows:
@@ -48,7 +48,7 @@ if ($num > 0) { // If it ran OK, display the records.
 	// Fetch and print all the records:
 	while ($row = $r->fetch_object()) {
 		echo '<tr><td align="left">' . $row->name . '</td><td align="left">' . $row->dr . '</td>
-		<td align="left"><button class="btn btn-primary" onclick="editUserClicked(' . $row->user_id . ')">Edit</button><button class="btn btn-danger" onclick="deleteUserClicked(' . $row->user_id . ')">Delete</button></td></tr>
+		<td align="left"><button class="btn btn-primary custom-grid-button" onclick="editUserClicked(' . $row->user_id . ')">Edit</button><button class="btn btn-danger custom-grid-button" onclick="deleteUserClicked(' . $row->user_id . ')">Delete</button></td></tr>
 		';
 	}
 

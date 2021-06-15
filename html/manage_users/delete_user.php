@@ -1,8 +1,8 @@
 <?php
 include('../includes/header.html');
+require('../includes/config.inc.php');
 
 if ($_SESSION['user_level'] == 1) {
-    require('../includes/config.inc.php');
 
     //Connect to the database
     require('../../mysqli_connect.php');

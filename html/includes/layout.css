@@ -87,6 +87,18 @@ a "be nice to Opera 5" rule every time you use the Tantek Celik hack (above). */
   font-size: 1.5rem !important;
 }
 
+.custom-notify-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.custom-notify-container-button {
+  width: 10rem;
+  height: 3.5rem;
+}
+
 @media only screen and (max-width: 992px) {
   /* For mobile phones: */
   .custom-view-product-image-div {

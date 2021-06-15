@@ -84,13 +84,13 @@ unset($mysqli);
     function deleteProductClicked(productID) {
         if (confirm('Are you sure you want to delete this product?')) {
             window.location = "<?php $baseUrl = BASE_URL;
-                                echo $baseUrl . "manage_users/delete_product.php?id=" ?>" + productID;
+                                echo $baseUrl . "manage_products/delete_product.php?id=" ?>" + productID;
         }
     }
 
     function editProductClicked(productID) {
         window.location = "<?php $baseUrl = BASE_URL;
-                            echo $baseUrl . "manage_product/edit_product.php?id=" ?>" + productID;
+                            echo $baseUrl . "manage_products/edit_product.php?id=" ?>" + productID;
     }
 </script>
 <?php

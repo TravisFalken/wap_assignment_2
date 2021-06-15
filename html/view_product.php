@@ -63,14 +63,26 @@ if (mysqli_num_rows($r) == 1) {
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="lbl_num_products">Number of Products:</span>
                             </div>
-                            <input type="number" class="form-control" name="num_of_products" min="1" max="' . $row['stock_quantity'] .  '" value="1" aria-label="Default" aria-describedby="lbl_num_products">
+                            <input type="number" class="form-control" name="num_of_products" id="productQty" min="1" max="' . $row['stock_quantity'] .  '" value="1" aria-label="Default" aria-describedby="lbl_num_products">
                         </div>
                     </div>
-                    <a href="' . BASE_URL . 'add_cart.php?id=' . $row['product_id'] . '" class="btn btn-primary"><i class="fas fa-shopping-cart"></i>  Add to Cart</a>
-                </div>';
+                    <button class="btn btn-primary" onclick="addProductToCart()"><i class="fas fa-shopping-cart"></i>  Add to Cart</button>
+                </div>
+                <script>
+                    function addProductToCart () {
+                        var productQty = document.getElementById("productQty").value;
+                        window.location = "' . BASE_URL . 'add_cart.php?productID=' . $row['product_id'] . '&qty=" + productQty;
+                    } 
+                </script>';
 } else {
     $page_title = 'View Product';
     include('includes/header.html');
     include('includes/navigation_bar.html');
     echo '<p>There is no product to show!</p>';
 }
+
+// Close the database connection.
+mysqli_close($dbc);
+unset($mysqli);
+
+include('includes/footer.html');

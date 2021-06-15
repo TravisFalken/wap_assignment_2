@@ -3,7 +3,7 @@
 require('includes/config.inc.php');
 $page_title = 'Logout';
 include('includes/header.html');
-include('includes/navigation_bar.html');
+
 // If no first_name session variable exists, redirect the user:
 if (!isset($_SESSION['first_name'])) {
 
@@ -16,10 +16,11 @@ if (!isset($_SESSION['first_name'])) {
 
 	$_SESSION = []; // Destroy the variables.
 	session_destroy(); // Destroy the session itself.
-	setcookie(session_name(), '', time()-3600); // Destroy the cookie.
+	setcookie(session_name(), '', time() - 3600); // Destroy the cookie.
 
 }
 
+include('includes/navigation_bar.html');
 // Print a customized message:
 echo '<h3>You are now logged out.</h3>';
 

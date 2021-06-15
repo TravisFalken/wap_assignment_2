@@ -68,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 <div class="container">
 	<h1>Login</h1>
+	<p>Your browser must allow cookies in order to log in.</p>
 </div>
-<p>Your browser must allow cookies in order to log in.</p>
 <form action="login.php" method="post">
 	<div class="container">
 		<div class="form-group">

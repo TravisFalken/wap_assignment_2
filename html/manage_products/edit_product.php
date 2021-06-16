@@ -282,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="row d-flex justify-content-center">
                         <div class="col-6-md">
                         ';
-        echo (isset($row['cover_image_name'])) ?  '<a class="btn btn-danger btn-lg" href ="delete_photo.php">Remove Photo</a>' : '';
+        echo (isset($row['cover_image_name'])) ?  '<a class="btn btn-danger btn-lg" href ="delete_product_photo.php?id=' . $row['product_id'] . '">Remove Photo</a>' : '';
         echo                '</div>
                         </div>
                         <div class="form-group">

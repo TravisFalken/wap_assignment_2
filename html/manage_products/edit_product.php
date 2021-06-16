@@ -4,7 +4,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current pag
 
 include('../includes/header.html');
 require('../includes/config.inc.php');
-include('../includes/navigation_bar.html');
+
 
 $allowedFiles = ['image/pjpeg', 'image/jpeg', 'image/JPG', 'image/X-PNG', 'image/PNG', 'image/png', 'image/x-png'];
 
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $trimmed = array_map('trim', $_POST);
 
 
-    $productTitle = $productDescription = $productPrice = $productSKU = $productQty = $profilePhoto = $profilePhotoUploadSuccess = $dbProductPhotoInsert = $dbPhotoInsert = FALSE;
+    $productTitle = $productDescription = $productPrice = $productSKU = $productQty = $profilePhoto = $profilePhotoUploadSuccess = $dbProductPhotoInsert = $dbPhotoInsert =  $profilePhotoNotUploaded = FALSE;
 
     if (isset($_FILES['profilePhoto']) && file_exists($_FILES['profilePhoto']['tmp_name']) && in_array($_FILES['profilePhoto']['type'], $allowedFiles)) {
 
@@ -38,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Close the resource:
         finfo_close($fileinfo);
+    } else if (!isset($_FILES['profilePhoto'])) {
+        $profilePhotoNotUploaded = true;
     }
 
     //Get the product title
@@ -76,20 +78,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     //Make sure everything is okay
-    if ($productTitle && $productDescription && $productPrice && $productSKU && $productQty && $profilePhoto) {
+    if ($productTitle && $productDescription && $productPrice && $productSKU && $productQty && ($profilePhoto || $profilePhotoNotUploaded)) {
         $createdUserID = $_SESSION['user_id'];
-
-        $newFileName = uniqid(rand(), true);
-        $existingPhotoName = explode(".",  $profilePhoto['name']);
-        $ext = end($existingPhotoName);
-        $profilePhoto['name'] = $newFileName . '.' . $ext;
-        $finalProfilePhotoName = $profilePhoto['name'];
-
+        if ($profilePhoto) {
+            $newFileName = uniqid(rand(), true);
+            $existingPhotoName = explode(".",  $profilePhoto['name']);
+            $ext = end($existingPhotoName);
+            $profilePhoto['name'] = $newFileName . '.' . $ext;
+            $finalProfilePhotoName = $profilePhoto['name'];
+        }
         //Begin Transaction
         mysqli_begin_transaction($dbc);
 
-        $q = "INSERT INTO products (product_title, product_description, price, stock_quantity, sku, created_by_user_id) 
-                VALUES ('$productTitle', '$productDescription', $productPrice, $productQty, '$productSKU', $createdUserID)";
+        $q = "  UPDATE products
+                SET 
+                    product_title       = $productTitle
+                ,   product_description = $productDescription
+                ,   price               = $productPrice
+                ,   stock_quantity      = $productQty
+                ,   sku                 = $productSKU
+                WHERE product_id = $id";
 
         $res = mysqli_query($dbc, $q) or trigger_error("Query: $q\n<br>MySQL Error: " . mysqli_error($dbc));
 
@@ -142,44 +150,88 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     mysqli_close($dbc);
+} else {
+    //Connect to database
+    require('../../mysqli_connect.php');
+
+    $id = $_GET['id'];
+    // Make the query:
+    $q = "  SELECT 
+            pd.product_id
+            ,   pd.product_title
+            ,   pd.product_description
+            ,   pd.price
+            ,   pd.stock_quantity
+            ,   pd.sku
+            ,	(
+                    SELECT
+                        ig.image_name
+                    FROM product_images pi
+                    INNER JOIN images ig ON ig.image_id = pi.image_id
+                    WHERE 	pi.product_id = pd.product_id
+                    AND		pi.cover_image = 1	
+                    LIMIT 1
+                ) AS cover_image_name
+            FROM        products pd
+            WHERE pd.product_id = $id
+            ORDER BY product_title ASC";
+
+    //Query the database
+    $r = mysqli_query($dbc, $q);
+
+    if (mysqli_num_rows($r) == 1) {
+        $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+        $page_title = $row['product_title'];
+
+        include('../includes/navigation_bar.html');
+
+
+
+        echo '  <div class="container">
+                    <h1>Edit Product</h1>
+                </div>
+                <form enctype="multipart/form-data" action="add_product.php" method="post">
+                    <div class="container">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-6-md d-flex custom-view-product-image-div">
+                                <img class="custom-view-product-image" src="' . BASE_URL . 'uploads/' . $row['cover_image_name'] . '">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profilePhoto">Select Profile Photo:</label>
+                            <input type="file" class="form-control" name="profilePhoto" />
+                        </div>
+                        <div class="form-group">
+                            <label for="first_name">Product Title:</label>
+                            <input type="text" class="form-control" name="productTitle" size="20" maxlength="20" value="' . $row['product_title'] . '">
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Product Description:</label>
+                            <input type="text" class="form-control" name="productDesc" size="20" maxlength="40" value="' . $row['product_description'] . '">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Product Price:</label>
+                            <input type="number" class="form-control" name="productPrice" step="any" size="30" maxlength="60" value="' . $row['price'] . '">
+                        </div>
+                        <div class="form-group">
+                            <label for="password1">Product SKU:</label>
+                            <input type="text" class="form-control" name="productSKU" size="20" value="' . $row['sku'] . '">
+                        </div>
+                        <div class="form-group">
+                            <label for="password2">Product Quantity:</label>
+                            <input type="number" class="form-control" name="productQty" size="20" value="' . $row['stock_quantity'] . '">
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-success btn-block"><i class="far fa-save"></i>  Save</button>
+                                
+                            </div>
+                            <div class="col-sm-6">
+                                <a class="btn btn-danger btn-block" href="' . BASE_URL . 'manage_products/manage_product.php' . '"><i class="fas fa-times"></i>  Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>';
+    }
 }
-
-?>
-<div class="container">
-    <h1>Add Product</h1>
-</div>
-<form enctype="multipart/form-data" action="add_product.php" method="post">
-    <div class="container">
-        <div class="form-group">
-            <label for="profilePhoto">Select Profile Photo:</label>
-            <input type="file" class="form-control" name="profilePhoto" />
-        </div>
-        <div class="form-group">
-            <label for="first_name">Product Title:</label>
-            <input type="text" class="form-control" name="productTitle" size="20" maxlength="20" value="<?php if (isset($trimmed['productTitle'])) echo $trimmed['productTitle']; ?>">
-        </div>
-        <div class="form-group">
-            <label for="last_name">Product Description:</label>
-            <input type="text" class="form-control" name="productDesc" size="20" maxlength="40" value="<?php if (isset($trimmed['productDesc'])) echo $trimmed['productDesc']; ?>">
-        </div>
-        <div class="form-group">
-            <label for="email">Product Price:</label>
-            <input type="number" class="form-control" name="productPrice" step="any" size="30" maxlength="60" value="<?php if (isset($trimmed['productPrice'])) echo $trimmed['productPrice']; ?>">
-        </div>
-        <div class="form-group">
-            <label for="password1">Product SKU:</label>
-            <input type="text" class="form-control" name="productSKU" size="20" value="<?php if (isset($trimmed['productSKU'])) echo $trimmed['productSKU']; ?>">
-        </div>
-        <div class="form-group">
-            <label for="password2">Product Quantity:</label>
-            <input type="number" class="form-control" name="productQty" size="20" value="<?php if (isset($trimmed['productQty'])) echo $trimmed['productQty']; ?>">
-        </div>
-        <div class="form-group row">
-            <div class="col-sm-6">
-                <button type="submit" class="btn btn-primary btn-block">Add Product</button>
-            </div>
-        </div>
-    </div>
-</form>
-
-<?php include('../includes/footer.html'); ?>
+include('../includes/footer.html');

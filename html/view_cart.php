@@ -16,7 +16,9 @@ require(MYSQL); //
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //Trim all incomming data
-    $trimmed = array_map('trim', $_POST);
+    //$trimmed = array_map('trim', $_POST);
+
+    echo '<div class="container" style="margin-top: 3rem; text-align: center;">';
 
     $userID = $orderID = $postType = $userOrder = false;
     $transactionValid = true; //Keep track of the transaction
@@ -25,120 +27,277 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     //Get the order id
-    if (isset($trimmed['orderID']) && filter_var($_GET['orderID'], FILTER_VALIDATE_INT, array('min-range' => 1))) {
-        $orderID =  mysqli_real_escape_string($dbc, $trimmed['orderID']);
+    if (isset($_POST['orderId']) && filter_var($_POST['orderId'], FILTER_VALIDATE_INT, array('min-range' => 1))) {
+        $orderID =  $_POST['orderId'];
     }
 
     //Get the post type
-    if (isset($trimmed['formSubmitType']) && ($trimmed['formSubmitType'] == 'checkout' || $trimmed['formSubmitType'] == 'saveChart')) {
-        $postType = $trimmed['formSubmitType'];
+    if (isset($_POST['formSubmitType']) && ($_POST['formSubmitType'] == 'checkout' || $_POST['formSubmitType'] == 'saveCart')) {
+        $postType = mysqli_real_escape_string($dbc, $_POST['formSubmitType']);
     }
 
-    //Make sure user is owner of order and order is open
-    $q = "  SELECT
+
+    if ($orderID && $userID) {
+        //Make sure user is owner of order and order is open
+        $q = "  SELECT
                 order_id
             FROM orders
             WHERE   order_id        = $orderID
             AND     user_id         = $userID
             AND     order_status    = 'open'";
 
-    $r = mysqli_query($dbc, $q);
+        $r = mysqli_query($dbc, $q);
 
-    if (mysqli_num_rows($r) == 1) {
-        $userOrder = true;
+        if (mysqli_num_rows($r) == 1) {
+            $userOrder = true;
+        }
     }
 
     //Make sure validation is okay
     if ($orderID && $postType && $userID && $userOrder) {
-        echo $_POST['qty']['1'];
-        // Turn autocommit off:
-        mysqli_autocommit($dbc, FALSE);
-        //BEGIN transaction
-        mysqli_begin_transaction($dbc);
+        if ($postType == 'checkout') {
+            // Turn autocommit off:
+            mysqli_autocommit($dbc, FALSE);
+            //BEGIN transaction
+            mysqli_begin_transaction($dbc);
 
-        // Set order to 
-        $q = "  UPDATE orders
+            // Set order to 
+            $q = "  UPDATE orders
                 SET
                     order_status = 'checkedout'
                 WHERE order_id = $orderID";
-        $r = mysqli_query($dbc, $q);
-        if (mysqli_affected_rows($dbc) == 1) {
+            $r = mysqli_query($dbc, $q);
+            if (mysqli_affected_rows($dbc) == 1) {
 
-            // Insert the specific order contents
+                // Insert the specific order contents
+
+                // Prepare the query:
+                $q = "  UPDATE      order_lines ol
+                        INNER JOIN  products pd ON pd.product_id = ol.product_id
+                        SET
+                                ol.product_qty      = ?
+                            ,   ol.product_price    = pd.price
+                            ,   pd.stock_quantity   = pd.stock_quantity - ?
+                        WHERE   ol.order_id         = ?
+                        AND     ol.order_line_id    = ?";
+
+                $stmt = mysqli_prepare($dbc, $q);
+                mysqli_stmt_bind_param(
+                    $stmt,
+                    'iiii',
+                    $productQty,
+                    $productQty,
+                    $orderID,
+                    $orderLineID
+                );
+
+                // Execute each query; count the
+
+
+                foreach ($_POST['qty'] as $key => $item) {
+                    $orderLineID = $productQty = false;
+
+                    if (filter_var($item, FILTER_VALIDATE_INT, array('min-range' => 0)) || $item == 0) {
+                        $productQty = (int)$item;
+                    }
+
+                    if (filter_var($key, FILTER_VALIDATE_INT, array('min-range' => 0))) {
+                        $orderLineID = $key;
+                    }
+
+                    //Make sure values are valid
+                    if ($productQty && $orderLineID || $productQty === 0) {
+                        if ($productQty > 0) {
+                            mysqli_stmt_execute($stmt);
+
+                            if (mysqli_stmt_affected_rows($stmt) != 2) {
+                                $transactionValid = false;
+                            }
+                            //Remove order lines with no qty
+                        } else {
+                            $q = "  DELETE 
+                                FROM order_lines 
+                                WHERE   order_id        = $orderID
+                                AND     order_line_id   = $orderLineID";
+                            $r = mysqli_query($dbc, $q);
+                            if (mysqli_affected_rows($dbc) != 1) {
+                                $transactionValid = false;
+                            }
+                        }
+                    } else {
+                        $transactionValid = false;
+                    }
+                }
+
+                // Close this prepared statement:
+                mysqli_stmt_close($stmt);
+
+                // Make sure all of the transactions are successful
+                if ($transactionValid) { // Whohoo!
+
+                    // Commit the transaction:
+                    mysqli_commit($dbc);;
+
+                    // Message to the customer:
+                    echo '<p>Thank you for your order.You will be notified when the items ship.</p><div class="row d-flex justify-content-center">
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-md-8 col-xl-6">
+                            <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+                        </div>
+                    </div>';
+                    // Send emails and do whatever else.
+
+                } else { // Rollback and report the
+
+                    mysqli_rollback($dbc);
+                    echo '<p>Your order could not be
+                    processed due to a system error. You will be contacted in order
+                    to have the problem fixed. We apologize for the inconvenience.</ p>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-md-8 col-xl-6">
+                            <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+                        </div>
+                    </div>';
+                    // Send the order information to
+
+
+                }
+            } else { // Rollback and report the problem.
+
+                mysqli_rollback($dbc);
+
+                echo '<p>Your order could not be
+                processed due to a system error. You will be contacted in order to have the problem fixed. We apologize for the inconvenience.</p>
+                <div class="row d-flex justify-content-center">
+                <div class="col-md-8 col-xl-6">
+                    <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+                </div>
+            </div>';
+
+                // Send the order information to the
+
+
+            }
+            //When the user just wants to save the cart
+        } else {
+
+
+            // Turn autocommit off:
+            mysqli_autocommit($dbc, FALSE);
+            //BEGIN transaction
+            mysqli_begin_transaction($dbc);
 
             // Prepare the query:
-            $q = "  UPDATE ol
-                    SET
-                            product_qty = ?
-                        ,   product_price = pd.price
-                    FROM    order_lines ol
-                    INNER JOIN products pd ON pd.product_id = ol.product_id
-                    WHERE   ol.order_id         = ?
-                    AND     ol.product_id       = ?
-                    AND     ol.order_line_id    = ?";
+            $q = "  UPDATE  order_lines ol
+            SET
+                    ol.product_qty      = ?
+            WHERE   ol.order_id         = ?
+            AND     ol.order_line_id    = ?";
 
             $stmt = mysqli_prepare($dbc, $q);
             mysqli_stmt_bind_param(
                 $stmt,
-                'iiii',
+                'iii',
                 $productQty,
                 $orderID,
-                $productID,
                 $orderLineID
             );
 
             // Execute each query; count the
 
-            $affected = 0;
-            foreach ($_Get['qty'] as $key => $item) {
-                $orderLineID = $key;
-                $productQty = $item;
-                mysqli_stmt_execute($stmt);
-                $affected += mysqli_stmt_affected_rows($stmt);
+
+            foreach ($_POST['qty'] as $key => $item) {
+                $orderLineID = $productQty = false;
+
+                if (filter_var($item, FILTER_VALIDATE_INT, array('min-range' => 1)) || $item == 0) {
+                    $productQty = (int)$item;
+                }
+
+                if (filter_var($key, FILTER_VALIDATE_INT, array('min-range' => 1))) {
+                    $orderLineID = $key;
+                }
+                //Make sure values are valid
+                if ($productQty && $orderLineID || $productQty === 0) {
+                    //Make sure there productQty is new
+                    $q = "  SELECT 
+                        order_line_id
+                    FROM  order_lines
+                    WHERE   order_id        = $orderID
+                    AND     order_line_id   = $orderLineID
+                    AND     product_qty     <> $productQty";
+
+                    $r = mysqli_query($dbc, $q);
+
+                    if (mysqli_num_rows($r) > 0) {
+                        //Remove items that are 0 qty
+                        if ($item > 0) {
+                            mysqli_stmt_execute($stmt);
+                            if (mysqli_stmt_affected_rows($stmt) != 1) {
+                                $transactionValid = false;
+                            }
+                        } else {
+                            $q = "  DELETE 
+                            FROM order_lines 
+                            WHERE   order_id        = $orderID
+                            AND     order_line_id   = $orderLineID";
+                            $r = mysqli_query($dbc, $q);
+                            if (mysqli_affected_rows($dbc) != 1) {
+                                $transactionValid = false;
+                            }
+                        }
+                    }
+                } else {
+                    $transactionValid = false;
+                }
             }
 
             // Close this prepared statement:
             mysqli_stmt_close($stmt);
 
-            // Report on the success....
-            if ($affected == count($_SESSION['cart'])) { // Whohoo!
+            // Make sure all of the transactions are successful
+            if ($transactionValid) { // Whohoo!
 
                 // Commit the transaction:
-                mysqli_commit($dbc);
-
-                // Clear the cart:
-                unset($_SESSION['cart']);
+                mysqli_commit($dbc);;
 
                 // Message to the customer:
-                echo '<p>Thank you for your order.You will be notified when the items ship.</p>';
+                echo '<h3>Your cart has been saved.</h3>
+                <div class="row d-flex justify-content-center">
+                        <div class="col-md-8 col-xl-6">
+                            <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+                        </div>
+                    </div>';
                 // Send emails and do whatever else.
 
             } else { // Rollback and report the
 
                 mysqli_rollback($dbc);
-                echo '<p>Your order could not be
-                    processed due to a system error. You will be contacted in order
-                    to have the problem fixed. We apologize for the inconvenience.</ p>';
+                echo '<p>Your cart could not be
+             saved due to a system error. You will be contacted in order
+             to have the problem fixed. We apologize for the inconvenience.</ p>
+             <div class="row d-flex justify-content-center">
+             <div class="col-md-8 col-xl-6">
+                 <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+             </div>
+         </div>';
                 // Send the order information to
 
 
             }
-        } else { // Rollback and report the problem.
-
-            mysqli_rollback($dbc);
-
-            echo '<p>Your order could not be
-                processed due to a system error. You will be contacted in order to have the problem fixed. We apologize for the inconvenience.</p>';
-
-            // Send the order information to the
-
-
         }
 
+
+        //Close the connection
         mysqli_close($dbc);
     } else {
-        echo "<p>There was an issue when trying to save/checkout a cart. Please try again.<p>";
+        echo '<h3>There was an issue when trying to save/checkout a cart. Please try again.<h3>
+        <div class="row d-flex justify-content-center">
+        <div class="col-md-8 col-xl-6">
+            <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+        </div>
+    </div>';
     }
+    echo '</div>';
 } else {
     //Only logged in users can view the cart
     if (!isset($_SESSION['user_id'])) {

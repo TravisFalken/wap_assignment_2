@@ -6,7 +6,8 @@ $page_title = 'Edit User';
 include('../includes/header.html');
 require('../includes/config.inc.php');
 include('../includes/navigation_bar.html');
-echo '<div class="container"><h1>Edit a User</h1></div>';
+echo '<div class="container"><h1>Edit User</h1></div>';
+
 
 // Check for a valid user ID, through GET or POST:
 if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) { // From view_users.php
@@ -18,6 +19,21 @@ if ((isset($_GET['id'])) && (is_numeric($_GET['id']))) { // From view_users.php
     include('../includes/footer.html');
     exit();
 }
+
+//Only admin or actual user can access this form
+if (!isset($_SESSION['user_id']) && !isset($_SESSION['user_level'])) {
+    echo '<p class="error">This page has been accessed in error.</p>';
+    include('../includes/footer.html');
+    exit();
+}
+
+if ($_SESSION['user_level'] != 1 && $_SESSION['user_id'] != $id) {
+    echo '<p class="error">This page has been accessed in error.</p>';
+    include('../includes/footer.html');
+    exit();
+}
+
+
 
 require('../../mysqli_connect.php');
 

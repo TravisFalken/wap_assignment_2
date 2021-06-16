@@ -55,8 +55,6 @@ if (!isset($current_page)) {
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="' . BASE_URL . 'manage_products/add_product.php">Add Product</a>
                     <a class="dropdown-item" href="' . BASE_URL . 'manage_products/manage_product.php">Manage Products</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Something else here</a>
                   </div>
                 </li>';
       }
@@ -65,13 +63,17 @@ if (!isset($current_page)) {
       <?php
       //Only show if logged in
       if (isset($_SESSION['first_name'])) {
-        $account = '<li class="nav-item';
+        $account = '<li class="nav-item dropdown';
 
         if ($current_page == 'manage_account') {
           $account = $account . ' active';
         }
         $account = $account . '">
-                              <a class="nav-link" href="#"><i class="fas fa-user"></i>  Account</a>
+                              <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-user"></i>  Account</a>
+                              <div class="dropdown-menu" aria-labelledby="accountDropdown">
+                                <a class="dropdown-item" href="' . BASE_URL . 'manage_users/edit_user.php?id=' . $_SESSION['user_id'] . '">Edit Account</a>
+                                <a class="dropdown-item" href="' . BASE_URL . 'manage_users/manage_product.php">Change Password</a>
+                              </div>
                             </li>';
         echo $account;
       }

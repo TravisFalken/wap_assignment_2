@@ -1,4 +1,7 @@
 <?php
+// Set the page title and include the HTML header:
+$page_title = 'View FAQ';
+$current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current page
 // This page shows the messages in a thread.
 include('includes/header.html');
 require('includes/config.inc.php');

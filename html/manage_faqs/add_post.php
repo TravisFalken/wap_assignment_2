@@ -1,6 +1,9 @@
 <?php
 // This page handles the message post.
 // It also displays the form if creating a new thread.
+// Set the page title and include the HTML header:
+$page_title = 'Add FAQ';
+$current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current page
 require('../includes/config.inc.php');
 include('../includes/header.html');
 

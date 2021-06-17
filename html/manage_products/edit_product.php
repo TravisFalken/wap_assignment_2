@@ -1,5 +1,5 @@
 <?php
-$page_title = 'Add Product';
+$page_title = 'Edit Product';
 $current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current page
 
 include('../includes/header.html');
@@ -268,7 +268,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 
-        echo '  <div class="container">
+        echo '   <div class="row custom-back-button-div">
+        <a href="manage_product.php" class="btn custom-back-button"><i class="fas fa-chevron-left"></i>  Back</a>
+    </div>  <div class="container">
                     <h1>Edit Product</h1>
                 </div>
                 <form enctype="multipart/form-data" action="edit_product.php" method="post">

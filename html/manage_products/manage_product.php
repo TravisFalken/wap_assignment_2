@@ -11,7 +11,6 @@ if (isset($_SESSION['user_level']) && $_SESSION['user_level'] == 1) {
 
     // Page header:
     echo '<div class="container"><h1>Manage Products</h1>';
-    echo BASE_URL;
 } else {
     //REDIRECT the user because they do not have permission
     $url = BASE_URL . 'index.php'; // Define the URL.

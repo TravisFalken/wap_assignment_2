@@ -91,3 +91,45 @@ CREATE TABLE order_lines (
 );
 
 
+
+
+CREATE TABLE threads (
+        thread_id INT UNSIGNED NOT NULL AUTO_INCREMENT
+    ,   subject VARCHAR(150) NOT NULL
+    ,   created_date        DATETIME                NOT NULL DEFAULT NOW()
+    ,   created_by_user_id  INT UNSIGNED                    NOT NULL
+    ,   last_modified       TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ,   thread_type varchar(20) NOT NULL
+    ,   PRIMARY KEY  (thread_id)
+    ,   FOREIGN KEY(created_by_user_id) REFERENCES users(user_id)
+    ,   INDEX (created_by_user_id)
+);
+
+CREATE TABLE posts (
+        post_id INT UNSIGNED NOT NULL AUTO_INCREMENT
+    ,   thread_id INT UNSIGNED NOT NULL
+    ,   message TEXT NOT NULL
+    ,   created_date        DATETIME                NOT NULL DEFAULT NOW()
+    ,   created_by_user_id  INT UNSIGNED            NOT NULL
+    ,   last_modified       TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ,   PRIMARY KEY (post_id)
+    ,   FOREIGN KEY(created_by_user_id) REFERENCES users(user_id)
+    ,   INDEX (thread_id)
+    ,   INDEX (created_by_user_id)
+);
+
+
+CREATE TABLE product_threads (
+        product_thread_id       INT UNSIGNED            NOT NULL AUTO_INCREMENT
+    ,   product_id              INT UNSIGNED            NOT NULL
+    ,   thread_id               INT UNSIGNED            NOT NULL
+    ,   created_date        DATETIME                    NOT NULL DEFAULT NOW()
+    ,   created_by_user_id  INT UNSIGNED                NOT NULL
+    ,   last_modified       TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ,   PRIMARY KEY(product_thread_id)
+    ,   FOREIGN  KEY (product_id)    REFERENCES products(product_id) ON DELETE CASCADE
+    ,   FOREIGN  KEY (thread_id)    REFERENCES threads(thread_id) ON DELETE CASCADE
+    ,   INDEX xi_product_threads_product_id (product_id)
+    ,   INDEX xi_product_threads_thread_id (thread_id)
+);
+

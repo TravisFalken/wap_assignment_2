@@ -54,14 +54,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 } // End of the main Submit conditional.
 ?>
-
-<h1>Change Your Password</h1>
-<form action="change_password.php" method="post">
-	<fieldset>
-		<p><strong>New Password:</strong> <input type="password" name="password1" size="20"> <small>At least 10 characters long.</small></p>
-		<p><strong>Confirm New Password:</strong> <input type="password" name="password2" size="20"></p>
-	</fieldset>
-	<div align="center"><input type="submit" name="submit" value="Change My Password"></div>
-</form>
-
+<div class="container">
+	<h1 align="center">Change Your Password</h1>
+	<form action="change_password.php" method="post">
+		<div class="form-group">
+			<label for="password1"> New Password:</label>
+			<input class="form-control" type="password" name="password1" size="20">
+			<small>At least 10 characters long.</small>
+		</div>
+		<div class="form-group">
+			<label for="password">Confirm New Password:</label>
+			<input class="form-control" type="password" name="password2" size="20"></p>
+		</div>
+		<div class="row d-flex justify-content-center">
+			<div class="col-md-8 col-xl-6" align="center"><input type="submit" name="submit" class="btn btn-primary btn-lg btn-block" value="Change My Password"></div>
+		</div>
+	</form>
+</div>
 <?php include('includes/footer.html'); ?>

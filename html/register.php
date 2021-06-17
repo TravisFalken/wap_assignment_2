@@ -59,18 +59,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 		if (mysqli_num_rows($res) == 0) { // Available.
 
 			// Create the activation code:
-			$activationCode = md5(uniqid(rand(), true));
+			//$activationCode = md5(uniqid(rand(), true));
 
 			// Add the user to the database:
-			$q = "INSERT INTO users (email, pass, first_name, last_name, active, registration_date) VALUES ('$email', '$pass', '$firstName', '$lastName', '$activationCode', NOW() )";
+			$q = "INSERT INTO users (email, pass, first_name, last_name, registration_date) VALUES ('$email', '$pass', '$firstName', '$lastName', NOW() )";
 			$res = mysqli_query($dbc, $q) or trigger_error("Query: $q\n<br>MySQL Error: " . mysqli_error($dbc));
 
 			if (mysqli_affected_rows($dbc) == 1) { //Make sure user has been added
 
 				// Send the email:
-				$body = "Thank you for registering at computersRUs. To activate your account, please click on this link:\n\n";
-				$body .= BASE_URL . 'activate.php?x=' . urlencode($email) . "&y=$activationCode";
-				mail($trimmed['email'], 'Registration Confirmation', $body, 'From: admin@sitename.com');
+				//$body = "Thank you for registering at computersRUs. To activate your account, please click on this link:\n\n";
+				//$body .= BASE_URL . 'activate.php?x=' . urlencode($email) . "&y=$activationCode";
+				//mail($trimmed['email'], 'Registration Confirmation', $body, 'From: admin@sitename.com');
 
 				// Finish the page:
 				echo '<h3>Thank you for registering! A confirmation email has been sent to your address. Please click on the link in that email in order to activate your account.</h3>';

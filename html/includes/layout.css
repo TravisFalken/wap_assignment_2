@@ -99,6 +99,11 @@ a "be nice to Opera 5" rule every time you use the Tantek Celik hack (above). */
   height: 3.5rem;
 }
 
+.custom-range {
+  height: 40px;
+  cursor: pointer;
+}
+
 @media only screen and (max-width: 992px) {
   /* For mobile phones: */
   .custom-view-product-image-div {

@@ -70,6 +70,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $r = @mysqli_query($dbc, $q);
         if (mysqli_num_rows($r) == 0) {
 
+            //Make sure user details are all unique
+            $q = "  SELECT
+                        user_id 
+                    FROM users 
+                    WHERE   email       ='$e' 
+                    AND     user_id     = $id
+                    AND     first_name  = '$fn'
+                    AND     last_name   = '$ln'";
+
+            $r = mysqli_query($dbc, $q);
+
+            if (mysqli_num_rows($r) > 0) {
+                mysqli_close($dbc);
+
+                // Redirect the user:
+                $url = BASE_URL . 'index.php'; // Define the URL.
+                ob_end_clean(); // Delete the buffer.
+                header("Location: $url");
+                exit(); // Quit the script.
+            }
+
             // Make the query:
             $q = "UPDATE users SET first_name='$fn', last_name='$ln', email='$e' WHERE user_id=$id LIMIT 1";
             $r = @mysqli_query($dbc, $q);

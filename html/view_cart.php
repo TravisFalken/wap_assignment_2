@@ -429,11 +429,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </script>';
         $r->free(); // Free up the resources.
         unset($r);
-    }
-    echo '  <div class="container">
+    } else {
+        echo '  <div class="container">
                 <div class="row d-flex justify-content-center custom-error-div">
                     <h1>Your cart is Empty.</h1>
                 </div>
             </div>';
+    }
 }
 include('includes/footer.html');

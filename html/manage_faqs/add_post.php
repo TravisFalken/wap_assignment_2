@@ -8,7 +8,7 @@ require('../includes/config.inc.php');
 include('../includes/header.html');
 
 
-
+$errors = array();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
     require('../../mysqli_connect.php');
     // Validate thread ID ($id), which may not be present:
@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
         $body = htmlentities($_POST['body']);
     } else {
         $body = FALSE;
+        $errors['body'] = true;
         echo '<p class="bg-danger">Please enter a body for this post.</p>';
     }
 
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
                 exit(); // Quit the script.
             } else {
                 mysqli_close($dbc); //Disconnect db
-                echo '<p class="bg-danger">Your post could not be handled due to a system error.</p>';
+                echo '<div class="container"><p class="bg-danger">Your post could not be handled due to a system error.</p></div>';
             }
         } // Valid $id.
 

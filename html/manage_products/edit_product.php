@@ -46,10 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo $_FILES['profilePhoto']['tmp_name'];
 
     //Get the product title
-    if (isset($trimmed['productTitle'])) {
-        $productTitle = mysqli_real_escape_string($dbc, $trimmed['productTitle']);
-    } else {
+    if (empty($trimmed['productTitle'])) {
         echo '<p> Please enter the product title!</p>';
+    } else {
+        $productTitle = mysqli_real_escape_string($dbc, $trimmed['productTitle']);
     }
 
     //Get product description

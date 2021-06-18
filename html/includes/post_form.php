@@ -6,7 +6,7 @@
 if (isset($_SESSION['user_id'])) {
 
     // Display the form:
-    echo '<form action="manage_faqs/add_post.php" method="post" accept-charset="utf-8">';
+    echo '<div class="container"><form action="' . BASE_URL . 'manage_faqs/add_post.php" method="post" accept-charset="utf-8">';
 
     // If on view_faq.php...
     if (isset($id) && $id) {
@@ -39,11 +39,11 @@ if (isset($_SESSION['user_id'])) {
         echo $body;
     }
 
-    echo '</textarea></div>';
-
+    echo '</textarea>';
+    echo ((isset($errors) && array_key_exists('body', $errors)) ? '<small class="error">Please enter a body for this post</small></div>' : '</div>');
     // Finish the form:
     echo '<input name="submit" type="submit" class="btn btn-primary btn-lg" value="Submit">
-	</form>';
+	</form><div>';
 } else {
-    echo '<p class="bg-warning">You must be logged in to post messages.</p>';
+    echo '<div> class="container"<p class="bg-warning">You must be logged in to post messages.</p></div>';
 }

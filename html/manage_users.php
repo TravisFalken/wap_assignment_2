@@ -58,7 +58,12 @@ if ($num > 0) { // If it ran OK, display the records.
 	unset($r);
 } else { // If no records were returned.
 
-	echo '<p class="error">There are currently no registered users.</p>';
+	echo '
+		<div class="container custom-error-div">
+			<div class="row d-flex justify-content-center">
+				<p class="error">There are currently no registered users.</p>
+			</div>
+		</div>';
 }
 
 // Close the database connection.

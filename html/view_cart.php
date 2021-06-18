@@ -139,7 +139,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     mysqli_commit($dbc);;
 
                     // Message to the customer:
-                    echo '<p>Thank you for your order.You will be notified when the items ship.</p><div class="row d-flex justify-content-center">
+                    echo '
+                    <div class="row d-flex justify-content-center custom-error-div">
+                        <h2>Thank you for your order.You will be notified when the items ship.</h2>
+                    </div>
                     <div class="row d-flex justify-content-center">
                         <div class="col-md-8 col-xl-6">
                             <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
@@ -150,9 +153,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 } else { // Rollback and report the
 
                     mysqli_rollback($dbc);
-                    echo '<p>Your order could not be
-                    processed due to a system error. You will be contacted in order
-                    to have the problem fixed. We apologize for the inconvenience.</ p>
+                    echo '
+                    <div class="row d-flex justify-content-center custom-error-div">
+                        <p>Your order could not be
+                        processed due to a system error. You will be contacted in order
+                        to have the problem fixed. We apologize for the inconvenience.
+                        </ p>
+                    </div>
                     <div class="row d-flex justify-content-center">
                         <div class="col-md-8 col-xl-6">
                             <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
@@ -166,8 +173,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 mysqli_rollback($dbc);
 
-                echo '<p>Your order could not be
+                echo '<div class="row d-flex justify-content-center custom-error-div">
+                <p>Your order could not be
                 processed due to a system error. You will be contacted in order to have the problem fixed. We apologize for the inconvenience.</p>
+                </div>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-8 col-xl-6">
                         <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
@@ -261,7 +270,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 mysqli_commit($dbc);;
 
                 // Message to the customer:
-                echo '<h3>Your cart has been saved.</h3>
+                echo '
+                <div class="row d-flex justify-content-center custom-error-div">
+                    <h3>Your cart has been saved.</h3>
+                </div>
                 <div class="row d-flex justify-content-center">
                         <div class="col-md-8 col-xl-6">
                             <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
@@ -272,9 +284,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } else { // Rollback and report the
 
                 mysqli_rollback($dbc);
-                echo '<p>Your cart could not be
+                echo '
+                <div class="row d-flex justify-content-center custom-error-div">
+                <p>Your cart could not be
              saved due to a system error. You will be contacted in order
              to have the problem fixed. We apologize for the inconvenience.</ p>
+             </div>
              <div class="row d-flex justify-content-center">
              <div class="col-md-8 col-xl-6">
                  <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
@@ -290,7 +305,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         //Close the connection
         mysqli_close($dbc);
     } else {
-        echo '<h3>There was an issue when trying to save/checkout a cart. Please try again.<h3>
+        echo '
+        <div class="row d-flex justify-content-center custom-error-div">
+            <h3>There was an issue when trying to save/checkout a cart. Please try again.<h3>
+        </div>
         <div class="row d-flex justify-content-center">
         <div class="col-md-8 col-xl-6">
             <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
@@ -412,5 +430,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $r->free(); // Free up the resources.
         unset($r);
     }
+    echo '  <div class="container">
+                <div class="row d-flex justify-content-center custom-error-div">
+                    <h1>Your cart is Empty.</h1>
+                </div>
+            </div>';
 }
 include('includes/footer.html');

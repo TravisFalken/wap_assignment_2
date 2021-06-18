@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 	exit(); // Quit the script.
 
 }
-
+$errors = array();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	require(MYSQL);
 
@@ -24,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if ($_POST['password1'] == $_POST['password2']) {
 			$p = password_hash($_POST['password1'], PASSWORD_DEFAULT);
 		} else {
-			echo '<p class="error">Your password did not match the confirmed password!</p>';
+			$errors['noMatch'] = true;
 		}
 	} else {
-		echo '<p class="error">Please enter a valid password!</p>';
+		$errors['password1'] = true;
 	}
 
 	if ($p) { // If everything's OK.
@@ -44,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			exit();
 		} else { // If it did not run OK.
 
-			echo '<p class="error">Your password was not changed. Make sure your new password is different than the current password. Contact the system administrator if you think an error occurred.</p>';
+			echo '
+			<div class="row d-flex justify-content-center">
+				<p class="error">Your password was not changed. Make sure your new password is different than the current password. Contact the system administrator if you think an error occurred.</p>
+			</div>';
 		}
-	} else { // Failed the validation test.
-		echo '<p class="error">Please try again.</p>';
 	}
-
 	mysqli_close($dbc); // Close the database connection.
 
 } // End of the main Submit conditional.
@@ -61,10 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			<label for="password1"> New Password:</label>
 			<input class="form-control" type="password" name="password1" size="20">
 			<small>At least 10 characters long.</small>
+			<?php echo ((array_key_exists('password1', $errors)) ? '<small class="error">Please enter a valid password!</small>' : ''); ?>
 		</div>
 		<div class="form-group">
 			<label for="password">Confirm New Password:</label>
 			<input class="form-control" type="password" name="password2" size="20"></p>
+			<?php echo ((array_key_exists('noMatch', $errors)) ? '<small class="error">Your password did not match the confirmed password!</small>' : ''); ?>
 		</div>
 		<div class="row d-flex justify-content-center">
 			<div class="col-md-8 col-xl-6" align="center"><input type="submit" name="submit" class="btn btn-primary btn-lg btn-block" value="Change My Password"></div>

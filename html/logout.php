@@ -22,6 +22,11 @@ if (!isset($_SESSION['first_name'])) {
 
 include('includes/navigation_bar.html');
 // Print a customized message:
-echo '<h3>You are now logged out.</h3>';
+echo '
+	<div class="container custom-error-div">
+		<div class="row d-flex justify-content-center">
+			<h3>You are now logged out.</h3>
+		</div>
+	</div>';
 
 include('includes/footer.html');

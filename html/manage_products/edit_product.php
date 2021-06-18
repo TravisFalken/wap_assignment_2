@@ -16,11 +16,12 @@ if (isset($_SESSION['user_level']) && $_SESSION['user_level'] != 1 || !isset($_S
     header("Location: $url");
     exit(); // Quit the script.
 }
-
+//Get db connection:
+require('../../mysqli_connect.php');
+$errors = array();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    //Get db connection:
-    require('../../mysqli_connect.php');
+
 
     //Trim all incomming data
     $trimmed = array_map('trim', $_POST);
@@ -29,16 +30,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $productTitle = $productDescription = $productPrice = $productSKU = $productQty = $productID = $profilePhoto = $profilePhotoUploadSuccess = $dbProductPhotoInsert = $dbPhotoInsert =  $profilePhotoNotUploaded = FALSE;
     $transactionSuccess = true;
 
-    if (isset($_FILES['profilePhoto']['tmp_name']) && file_exists($_FILES['profilePhoto']['tmp_name']) && in_array($_FILES['profilePhoto']['type'], $allowedFiles)) {
+    if (isset($_FILES['profilePhoto']['tmp_name']) && file_exists($_FILES['profilePhoto']['tmp_name'])) {
+        if (in_array($_FILES['profilePhoto']['type'], $allowedFiles)) {
 
-        $fileinfo = finfo_open(FILEINFO_MIME_TYPE);
+            $fileinfo = finfo_open(FILEINFO_MIME_TYPE);
 
-        if (in_array(finfo_file($fileinfo, $_FILES['profilePhoto']['tmp_name']), $allowedFiles)) {
-            $profilePhoto = $_FILES['profilePhoto'];
+            if (in_array(finfo_file($fileinfo, $_FILES['profilePhoto']['tmp_name']), $allowedFiles)) {
+                $profilePhoto = $_FILES['profilePhoto'];
+            } else {
+                $errors['profilePhoto'] = true;
+            }
+
+            // Close the resource:
+            finfo_close($fileinfo);
+        } else {
+            $errors['profilePhoto'] = true;
         }
-
-        // Close the resource:
-        finfo_close($fileinfo);
     } else {
         $profilePhotoNotUploaded = true;
     }
@@ -47,22 +54,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //Get the product title
     if (empty($trimmed['productTitle'])) {
+        $errors['productTitle'] = true;
         echo '<p> Please enter the product title!</p>';
     } else {
         $productTitle = mysqli_real_escape_string($dbc, $trimmed['productTitle']);
     }
 
     //Get product description
-    if (isset($trimmed['productDesc'])) {
-        $productDescription = mysqli_real_escape_string($dbc, $trimmed['productDesc']);
+    if (empty($trimmed['productDesc'])) {
+        $errors['productDesc'] = true;
     } else {
-        echo '<p> Please enter the product description!</p>';
+        $productDescription = mysqli_real_escape_string($dbc, $trimmed['productDesc']);
     }
 
     //Get Product price
     if (isset($trimmed['productPrice']) && $trimmed['productPrice'] > 0) {
         $productPrice = $trimmed['productPrice'];
     } else {
+        $errors['productPrice'] = true;
         echo '<p>Please enter the product price!</p>';
     }
 
@@ -70,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (preg_match('/^[A-Z 0-9 \'.-]{2,40}$/i', $trimmed['productSKU'])) {
         $productSKU = $trimmed['productSKU'];
     } else {
+        $errors['productSKU'] = true;
         echo '<p>Please enter the product SKU!</p>';
     }
 
@@ -77,15 +87,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($trimmed['productQty']) && $trimmed['productQty'] >= 0) {
         $productQty = $trimmed['productQty'];
     } else {
+        $errors['productQty'] = true;
         echo '<p>Please enter the product Qty';
     }
 
     //Get product Id
     if (isset($trimmed['productId']) && filter_var($trimmed['productId'], FILTER_VALIDATE_INT, array('min-range' => 1))) {
         $productID =  $trimmed['productId'];
+    } else {
+        $errors['system'] = true;
     }
 
-    echo 'test: ' . $profilePhotoNotUploaded;
     //Make sure everything is okay
     if ($productID && $productTitle && $productDescription && $productPrice && $productSKU && $productQty && ($profilePhoto || $profilePhotoNotUploaded)) {
         $createdUserID = $_SESSION['user_id'];
@@ -127,7 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $res = mysqli_query($dbc, $q) or trigger_error("Query: $q\n<br>MySQL Error: " . mysqli_error($dbc));
 
-            if (mysqli_affected_rows($dbc) == 1) {
+            if (mysqli_affected_rows($dbc) < 1) {
+
                 $transactionSuccess = false;
             }
         }
@@ -220,24 +233,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 exit(); // Quit the script.
             } else {
                 mysqli_rollback($dbc);
-                echo '<p class="error">You could not be edit the product due to a system error. We apologize for any inconvenience.</p>';
+                echo '<p class="error">Could not edit the product due to a system error. We apologize for any inconvenience.</p>';
             }
 
             mysqli_rollback($dbc);
         } else {
             mysqli_rollback($dbc);
-            echo '<p class="error">You could not be edit the product due to a system error. We apologize for any inconvenience.</p>';
+            //echo '<p class="error">You could not be edit the product due to a system error. We apologize for any inconvenience.</p>';
         }
     }
-    mysqli_close($dbc);
-    echo '<p class="error">You could not be edit the product due to a system error. We apologize for any inconvenience.</p>';
-} else {
-    //Connect to database
-    require('../../mysqli_connect.php');
+}
 
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $id = $_GET['id'];
-    // Make the query:
-    $q = "  SELECT 
+} else {
+    $id = $productID;
+}
+
+// Make the query:
+$q = "  SELECT 
             pd.product_id
             ,   pd.product_title
             ,   pd.product_description
@@ -257,18 +271,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             WHERE pd.product_id = $id
             ORDER BY product_title ASC";
 
-    //Query the database
-    $r = mysqli_query($dbc, $q);
+//Query the database
+$r = mysqli_query($dbc, $q);
 
-    if (mysqli_num_rows($r) == 1) {
-        $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
-        $page_title = $row['product_title'];
+if (mysqli_num_rows($r) == 1) {
+    $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+    $page_title = $row['product_title'];
 
-        include('../includes/navigation_bar.html');
+    include('../includes/navigation_bar.html');
 
 
 
-        echo '   <div class="row custom-back-button-div">
+    echo '   <div class="row custom-back-button-div">
         <a href="manage_product.php" class="btn custom-back-button"><i class="fas fa-chevron-left"></i>  Back</a>
     </div>  <div class="container">
                     <h1>Edit Product</h1>
@@ -284,32 +298,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="row d-flex justify-content-center">
                         <div class="col-6-md">
                         ';
-        echo (isset($row['cover_image_name'])) ?  '<a class="btn btn-danger btn-lg" href ="delete_product_photo.php?id=' . $row['product_id'] . '">Remove Photo</a>' : '';
-        echo                '</div>
+    echo (isset($row['cover_image_name'])) ?  '<a class="btn btn-danger btn-lg" href ="delete_product_photo.php?id=' . $row['product_id'] . '">Remove Photo</a>' : '';
+    echo                '</div>
                         </div>
                         <div class="form-group">
                             <label for="profilePhoto">Select Profile Photo:</label>
                             <input type="file" class="form-control" name="profilePhoto" />
+                            ' .  ((array_key_exists("profilePhoto", $errors)) ? '<small class="error">Please upload a valid file!</small>' : '') . '
                         </div>
                         <div class="form-group">
                             <label for="first_name">Product Title:</label>
-                            <input type="text" class="form-control" name="productTitle" size="20" maxlength="20" value="' . $row['product_title'] . '">
+                            <input type="text" class="form-control" name="productTitle" size="20" maxlength="20" value="' . ((isset($productTitle)) ? $productTitle : $row['product_title']) . '">
+                            ' .  ((array_key_exists("productTitle", $errors)) ? '<small class="error">Please enter a valid product tile!</small>' : '') . '
                         </div>
                         <div class="form-group">
                             <label for="last_name">Product Description:</label>
-                            <input type="text" class="form-control" name="productDesc" size="20" maxlength="40" value="' . $row['product_description'] . '">
+                            <input type="text" class="form-control" name="productDesc" size="20" value="' . ((isset($productDescription)) ? $productDescription : $row['product_description']) . '">
+                            ' .  ((array_key_exists("productDesc", $errors)) ? '<small class="error">Please enter a valid product description!</small>' : '') . '
                         </div>
                         <div class="form-group">
                             <label for="email">Product Price:</label>
-                            <input type="number" class="form-control" name="productPrice" step="any" size="30" maxlength="60" value="' . $row['price'] . '">
+                            <input type="number" class="form-control" name="productPrice" step="any" size="30" maxlength="60" value="' . ((isset($productPrice)) ? $productPrice : $row['price']) . '">
+                            ' .  ((array_key_exists("productPrice", $errors)) ? '<small class="error">Please enter a valid product price!</small>' : '') . '
                         </div>
                         <div class="form-group">
                             <label for="password1">Product SKU:</label>
-                            <input type="text" class="form-control" name="productSKU" size="20" value="' . $row['sku'] . '">
+                            <input type="text" class="form-control" name="productSKU" size="20" value="' . ((isset($productSKU)) ? $productSKU : $row['sku']) . '">
+                            ' .  ((array_key_exists("productSKU", $errors)) ? '<small class="error">Please enter a valid product SKU!</small>' : '') . '
                         </div>
                         <div class="form-group">
                             <label for="password2">Product Quantity:</label>
-                            <input type="number" class="form-control" name="productQty" size="20" value="' . $row['stock_quantity'] . '">
+                            <input type="number" class="form-control" name="productQty" size="20" value="' . ((isset($productQty)) ? $productQty : $row['stock_quantity']) . '">
+                            ' .  ((array_key_exists("productQty", $errors)) ? '<small class="error">Please enter a valid product quantity!</small>' : '') . '
                         </div>
                         <input type="hidden" name="productId" value="' . $row["product_id"] . '">
                         <div class="form-group row">
@@ -317,12 +337,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <button type="submit" class="btn btn-success btn-block"><i class="far fa-save"></i>  Save</button>
                                 
                             </div>
+                            ' .  ((array_key_exists("system", $errors)) ? '<small class="error">The product could not be edited because of a system error. Please try again later.</small>' : '') . '
                             <div class="col-sm-6">
                                 <a class="btn btn-danger btn-block" href="' . BASE_URL . 'manage_products/manage_product.php' . '"><i class="fas fa-times"></i>  Cancel</a>
                             </div>
                         </div>
                     </div>
                 </form>';
-    }
 }
+
 include('../includes/footer.html');

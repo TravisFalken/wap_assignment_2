@@ -43,7 +43,7 @@ if (isset($_SESSION['first_name'])) {
 	echo ", {$_SESSION['first_name']}";
 }
 echo '!</h1>
-		<div class="container">
+		<div class="container" style="margin-top:40px">
 		<h2>LaptopsRUs world leading store!</h2>
 		<p>Browse through our store to see what product best suits you.</p>
 		<p><b>On Sale Now!</b></p>
@@ -63,6 +63,9 @@ if ($totalNum > 0) {
 		$numberOfImages = $numberOfImages + 1;
 	}
 
+	$r->free(); // Free up the resources.
+	unset($r);
+
 	echo '
 			<a class="prev" onclick="plusSlides(-1)">&#10094;</a>
 			<a class="next" onclick="plusSlides(1)">&#10095;</a>
@@ -70,7 +73,7 @@ if ($totalNum > 0) {
 			<br>
 			<div style="text-align:center">';
 
-	$numberOfImages = 1;
+	$numberOfImages = 0;
 	while ($numberOfImages < $totalNum) {
 		echo '<span class="dot" onclick="currentSlide(' . $numberOfImages . ')"></span>';
 		$numberOfImages = $numberOfImages + 1;

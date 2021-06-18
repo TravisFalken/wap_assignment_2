@@ -45,5 +45,5 @@ if (isset($_SESSION['user_id'])) {
     echo '<input name="submit" type="submit" class="btn btn-primary btn-lg" value="Submit">
 	</form><div>';
 } else {
-    echo '<div> class="container"<p class="bg-warning">You must be logged in to post messages.</p></div>';
+    echo '<div class="container"><p class="bg-warning">You must be logged in to post messages.</p></div>';
 }

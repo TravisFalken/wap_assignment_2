@@ -52,11 +52,22 @@ if ($id) { // Get the messages in this thread...
         }
     } // End of WHILE loop.
 
+    $r->free(); // Free up the resources.
+    unset($r);
     // Show the form to post a message:
     include('includes/post_form.php');
     echo '</div>';
 } else { // Invalid thread ID!
-    echo '<p class="bg-danger">This page has been accessed in error.</p>';
+    echo '  <div class="container custom-error-div">
+                <div class="row d-flex justify-content-center">
+                    <h2 class="text-danger">This page has been accessed in error.</h2>
+                </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-8 col-xl-6">
+                        <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+                    </div>
+                </div>
+            <div>';
 }
 
 include('includes/footer.html');

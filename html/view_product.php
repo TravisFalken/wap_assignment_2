@@ -78,7 +78,7 @@ if (mysqli_num_rows($r) == 1) {
     $page_title = 'View Product';
     include('includes/header.html');
     include('includes/navigation_bar.html');
-    echo '<p>There is no product to show!</p>';
+    echo '<div class="container"><p>There is no product to show!</p></div>';
 }
 
 // Close the database connection.

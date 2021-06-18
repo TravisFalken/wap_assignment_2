@@ -121,6 +121,8 @@ if (mysqli_num_rows($r) > 0) {
 			</tr>';
     }
 
+    $r->free(); // Free up the resources.
+    unset($r);
     echo '</tbody></table></div>'; // Complete the table.
 
 } else {

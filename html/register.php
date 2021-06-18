@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 	$trimmed = array_map('trim', $_POST);
 
 	// Assume invalid values:
-	$firstName = $lastName = $email = $pass = FALSE;
+	$firstName = $lastName = $email = $pass = $userLevel = FALSE;
 
 	// Check for a first name:
 	if (preg_match('/^[A-Z \'.-]{2,20}$/i', $trimmed['first_name'])) {
@@ -51,6 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 		$errors['password1'] = true;
 	}
 
+	//Check the user level / make sure the user has access to appoint user level : if not default to customer
+	if (isset($_SESSION['user_level']) && $_SESSION['user_level'] == 1) {
+		if (isset($trimmed['user_level']) && $trimmed['user_level'] >= 0) {
+			$userLevel = 1;
+		} else {
+			$userLevel = 0;
+		}
+	} else {
+		$userLevel = 0;
+	}
+
 	if ($firstName && $lastName && $email && $pass) { // If everything's OK...
 
 		// Make sure the email address is available:
@@ -63,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 			//$activationCode = md5(uniqid(rand(), true));
 
 			// Add the user to the database:
-			$q = "INSERT INTO users (email, pass, first_name, last_name, registration_date) VALUES ('$email', '$pass', '$firstName', '$lastName', NOW() )";
+			$q = "INSERT INTO users (email, pass, first_name, last_name, registration_date, user_level) VALUES ('$email', '$pass', '$firstName', '$lastName', NOW() , $userLevel)";
 			$res = mysqli_query($dbc, $q) or trigger_error("Query: $q\n<br>MySQL Error: " . mysqli_error($dbc));
 
 			if (mysqli_affected_rows($dbc) == 1) { //Make sure user has been added
@@ -91,7 +102,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 				exit(); // Stop the page.
 
 			} else { // If it did not run OK.
-				echo '<p class="error">You could not be registered due to a system error. We apologize for any inconvenience.</p>';
+				echo '	<div class="row d-flex justify-content-center custom-error-div">
+							<p class="error">You could not be registered due to a system error. We apologize for any inconvenience.</p>
+						</div>
+						<div class="row d-flex justify-content-center custom-error-div">
+							<div class="col-md-8 col-xl-6">
+									<a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+							</div>
+						</div>
+						';
 			}
 		} else { // The email address is not available.
 			$errors['duplicateEmail'] = true;
@@ -133,6 +152,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Handle the form.
 			<input type="password" class="form-control" name="password2" size="20" value="<?php if (isset($trimmed['password2'])) echo $trimmed['password2']; ?>">
 			<?php echo (array_key_exists('password2', $errors)) ? '<small class="error">Your password did not match the confirmed password!</small>' : ''; ?>
 		</div>
+		<?php if (isset($_SESSION["user_level"]) && $_SESSION['user_level'] == 1) {
+			echo ' <div class="form-group">
+			<label for="userLevelSelect">User:</label>
+			<select class="form-control" id="userLevelSelect" name="user_level"' . ((isset($trimmed['user_level'])) ? $trimmed['user_level'] : '') . '">
+			  <option value="0">Customer</option>
+			  <option value="1">Admin</option>
+			</select>
+		  </div>';
+		} ?>
 		<div class="form-group row">
 			<div class="col-sm-6">
 				<button type="submit" class="btn btn-primary btn-block">Register</button>

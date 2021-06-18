@@ -32,18 +32,19 @@ if (!isset($current_page)) {
       echo $shop;
 
       ?>
+
       <?php
-      //Make sure user has admin privileges
       if (isset($_SESSION['user_level']) && $_SESSION['user_level'] == 1) {
-        $manageUsers = ' <li class="nav-item';
-        if ($current_page == 'manage_users') {
-          $manageUsers = $manageUsers . ' active';
-        }
-        $manageUsers = $manageUsers . '"><a class="nav-link" href="' . BASE_URL . 'manage_users.php"><i class="fas fa-users"></i>  Manage Users</a></li>';
-
-        echo $manageUsers;
+        echo ' <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-users"></i>  Manage Users
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="' . BASE_URL . 'register.php">Add User</a>
+                    <a class="dropdown-item" href="' . BASE_URL . 'manage_users.php">Manage Users</a>
+                  </div>
+                </li>';
       }
-
       ?>
 
       <?php

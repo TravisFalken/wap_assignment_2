@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
         <div class="form-group">
             <label for="productDesc">Product Description:</label>
-            <input type="text" class="form-control" name="productDesc" size="20" maxlength="40" value="<?php if (isset($trimmed['productDesc'])) echo $trimmed['productDesc']; ?>">
+            <input type="text" class="form-control" name="productDesc" size="20" value="<?php if (isset($trimmed['productDesc'])) echo $trimmed['productDesc']; ?>">
             <?php echo (array_key_exists('productDesc', $errors)) ? '<small class="error">Please enter a valid product description!</small>' : ''; ?>
         </div>
         <div class="form-group">

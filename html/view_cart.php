@@ -169,10 +169,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 echo '<p>Your order could not be
                 processed due to a system error. You will be contacted in order to have the problem fixed. We apologize for the inconvenience.</p>
                 <div class="row d-flex justify-content-center">
-                <div class="col-md-8 col-xl-6">
-                    <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
-                </div>
-            </div>';
+                    <div class="col-md-8 col-xl-6">
+                        <a class="btn btn-primary btn-block" href="' . BASE_URL . 'index.php">OK</a>
+                    </div>
+                </div>';
 
                 // Send the order information to the
 
@@ -364,8 +364,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <td><img class=\"small-custom-image\" src=\"" . BASE_URL . "uploads/" . $row->cover_image_name . "\"></td>
                         <td align=\"left\">{$row->product_title}</td>
                         <td align=\"left\" name=\"currentPrice{$row->order_line_id}\">$" . number_format($row->current_product_price, 2) . "</td>
-                        <td align=\"center\"><input class=\"form-control\" onchange=\"recalculateTotal(this.name, this.value)\" type=\"number\" min=\"0\" max=\"" . $row->remaining_stock . "\" size=\"3\" name=\"qty[{$row->order_line_id}]\"
-                        value=\"{$row->order_line_qty}\" /></td>
+                        <td align=\"center\"><div class=\"form-group\"><input class=\"form-control\" onchange=\"recalculateTotal(this.name, this.value)\" type=\"number\" min=\"0\" max=\"" . $row->remaining_stock . "\" size=\"3\" name=\"qty[{$row->order_line_id}]\"
+                        value=\"{$row->order_line_qty}\" /><small>Set to 0 will remove product from cart.</small></div></td>
                         <td align=\"right\"><b name=\"totalPrice{$row->order_line_id}\">$" . number_format($subTotal, 2) . "</b></td>
                     </tr>\n";
         }

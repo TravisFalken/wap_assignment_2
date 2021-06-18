@@ -6,6 +6,8 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); //get the current pag
 include('includes/header.html');
 include('includes/navigation_bar.html');
 
+$errors = array();
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	require(MYSQL);
 
@@ -14,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$e = mysqli_real_escape_string($dbc, $_POST['email']);
 	} else {
 		$e = FALSE;
-		echo '<p class="error">You forgot to enter your email address!</p>';
+		$errors['email'] = true;
 	}
 
 	// Validate the password:
@@ -22,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$p = trim($_POST['pass']);
 	} else {
 		$p = FALSE;
-		echo '<p class="error">You forgot to enter your password!</p>';
+		$errors['pass'] = true;
 	}
 
 	if ($e && $p) { // If everything's OK.
@@ -53,14 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				exit(); // Quit the script.
 
 			} else {
-
-				echo '<p class="error">Either the email address and password entered do not match those on file or you have not yet activated your account.</p>';
+				$errors['login'] = true;
 			}
 		} else { // No match was made.
-			echo '<p class="error">Either the email address and password entered do not match those on file or you have not yet activated your account.</p>';
+			$errors['login'] = true;
 		}
-	} else { // If everything wasn't OK.
-		echo '<p class="error">Please try again.</p>';
 	}
 
 	mysqli_close($dbc);
@@ -69,16 +68,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="container">
 	<h1>Login</h1>
 	<p>Your browser must allow cookies in order to log in.</p>
+	<?php echo (array_key_exists('login', $errors)) ? '<small class="error">Either the email address and password entered do not match those on file or you have not yet activated your account.</small>' : ''; ?>
 </div>
 <form action="login.php" method="post">
 	<div class="container">
 		<div class="form-group">
 			<label for="email">Email Address:</label>
 			<input type="email" class="form-control" name="email" size="20" maxlength="60">
+			<?php echo (array_key_exists('email', $errors)) ? '<small class="error">You forgot to enter your email address!</small>' : ''; ?>
 		</div>
 		<div class="form-group">
 			<label for="password">Password:</label>
 			<input type="password" class="form-control" name="pass" size="20">
+			<?php echo (array_key_exists('pass', $errors)) ? '<small class="error">You forgot to enter your password!</small>' : ''; ?>
 			<small><a href="<?php echo BASE_URL . 'forgot_password.php' ?>">Forgot Password</a></small>
 		</div>
 		<div class="form-group row">

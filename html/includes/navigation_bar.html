@@ -28,7 +28,7 @@ if (!isset($current_page)) {
       if ($current_page == 'shop') {
         $shop = $shop . ' active';
       }
-      $shop = $shop . '"><a class="nav-link" href="' . BASE_URL . 'shop.php">Shop</a></li>';
+      $shop = $shop . '"><a class="nav-link" href="' . BASE_URL . 'shop.php"><i class="fas fa-store"></i>  Shop</a></li>';
       echo $shop;
 
       ?>
@@ -39,7 +39,7 @@ if (!isset($current_page)) {
         if ($current_page == 'manage_users') {
           $manageUsers = $manageUsers . ' active';
         }
-        $manageUsers = $manageUsers . '"><a class="nav-link" href="' . BASE_URL . 'manage_users.php">Manage Users</a></li>';
+        $manageUsers = $manageUsers . '"><a class="nav-link" href="' . BASE_URL . 'manage_users.php"><i class="fas fa-users"></i>  Manage Users</a></li>';
 
         echo $manageUsers;
       }
@@ -83,7 +83,7 @@ if (!isset($current_page)) {
       <?php
       echo '<li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Help
+          <i class="far fa-question-circle"></i>  Help
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="' . BASE_URL . 'faq.php">FAQ\'s</a>
